@@ -1,35 +1,25 @@
 # Mairie360
 
-Welcome to the **Mairie360** GitHub organization! 🚀
+Welcome to the **Mairie360** GitHub organization
 
-Mairie360 is dedicated to modernizing and improving the productivity of French town halls in the face of digital challenges. We provide a suite of digital tools designed specifically for municipalities to streamline operations, enhance collaboration, and improve efficiency. 
+**Mairie360** is dedicated to modernizing and improving the productivity of French town halls in the face of digital challenges. We provide a suite of digital tools designed specifically for municipalities to streamline operations, enhance collaboration, and improve efficiency. 
 
 ## Our Mission
+
 We aim to bridge the gap between traditional governance and the digital age. Our solutions are designed to make municipal management easier, more secure, and more efficient by offering tools that meet the unique needs of local governments.
 
-## Key Features
-- **Communication Tools:** Secure and efficient communication channels for internal and external stakeholders.
-- **Project Management:** Tools to manage projects, track progress, and ensure timely completion.
-- **Task Management:** Simplified task tracking and assignment for efficient workflow management.
-- **Document Management:** Versioned file management system for secure and collaborative work.
-- **Interoperability:** Integration with existing systems and services to ensure seamless data exchange.
-- **Collaborative Tools:** Tools tailored for local administrations to enhance communication and workflow.
-- **Security & Privacy:** Built with a focus on data security and privacy, ensuring compliance with public sector standards.
-- **Open Source:** All our projects are open-source, encouraging community involvement and transparency.
+## Modules
 
-## Our Projects
-### 1. **Digital Platform for Municipal Management**
-A comprehensive platform designed to help town halls manage documents, tasks, and communications seamlessly.
+- [**Calendars**](https://github.com/mairie360/calendars): A comprehensive calendar system for managing events, meetings, and schedules.  
+- [**Files**](https://github.com/mairie360/files): A file management system for storing, sharing, and collaborating on documents securely.  
+- [**Messages**](https://github.com/mairie360/messages): A messaging platform for internal communication, announcements, and updates.  
+- [**Emails**](https://github.com/mairie360/emails): An email management system for sending, receiving, and organizing emails efficiently.  
+- [**Projects**](https://github.com/mairie360/projects): A project management tool for planning, tracking, and executing municipal projects.  
 
-### 2. **Collaborative Workspaces for Local Government**
-Tools for teams within municipalities to collaborate efficiently, track progress, and communicate securely.
+## Orchestration
 
-### 3. **Customizable Solutions for Specific Needs**
-We provide tailored solutions to address the unique challenges faced by local governments, offering flexibility and adaptability.
+The [**Core**](https://github.com/mairie360/core) module is the backbone of Mairie360, orchestrating all other modules and ensuring seamless integration and communication between them. It provides a unified interface for managing all aspects of municipal operations.
 
-## Get Involved
-We believe in the power of open-source collaboration. Feel free to browse our repositories, contribute to ongoing projects, or start a discussion. Your contributions can help us improve the tools we offer to local governments.
+## Getting Started
 
----
-
-**Together, we can shape the future of municipal governance!**
+To test Mairie360, visit the main [Mairie360](https://github.com/mairie360/mairie360) repository and follow the instructions in the README file.
