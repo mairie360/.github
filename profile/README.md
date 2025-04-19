@@ -23,3 +23,12 @@ The [**Core**](https://github.com/mairie360/core) module is the backbone of Mair
 ## Getting Started
 
 To test Mairie360, visit the main [Mairie360](https://github.com/mairie360/mairie360) repository and follow the instructions in the README file.
+
+# For Contributors
+
+We welcome contributions to Mairie360! Please refer to our guides:
+
+- [**Code Review**](../CODE_REVIEW.md): Guidelines for reviewing code changes.
+- [**Version Control**](../VERSION_CONTROL.md): Best practices for managing project versions and commit conventions.
+- [**Collaboration**](../COLLABORATION.md): How to effectively use GitHub Projects for task management.
+- [**Feature Handling**](../TESTING.md): Guidelines for testing and quality assurance.
