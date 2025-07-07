@@ -293,15 +293,23 @@ jobs:
               console.log(`#${pr.number} - ${pr.title} (created at ${pr.createdAt})`);
 
               if (pr.timelineItems.nodes.length > 0) {
-                console.log("  Linked sources:");
-                pr.timelineItems.nodes.forEach(linked => {
-                  const src = linked.source;
-                  console.log(`    Type: ${src ? src.__typename : 'null'}`, src);
-                });
+                // Ne garder que les linked issues
+                const linkedIssues = pr.timelineItems.nodes.filter(linked => linked.source && linked.source.__typename === "Issue");
+
+                if (linkedIssues.length > 0) {
+                  console.log("  Linked issues:");
+                  linkedIssues.forEach(linked => {
+                    const src = linked.source;
+                    console.log(`    #${src.number} - ${src.title} (${src.state}) ${src.url}`);
+                  });
+                } else {
+                  // Ne rien afficher si pas d'issues
+                }
               } else {
-                console.log("  No timeline items found.");
+                // Pas de timeline items, ne rien afficher ou un message minimal
               }
             }
+
 
             const owner = "${{ github.repository_owner }}";
 
