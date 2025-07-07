@@ -103,6 +103,12 @@ jobs:
               if (issue.priority !== "N/A" && issue.status !== "N/A") {
                 const priorityLimit = priorityLimitMap[issue.priority];
                 const ageInDays = getIssueAgeInDays(issue.createdAt);
+                console.log(`   -> Priority Limit: ${priorityLimit} days`);
                 console.log(`   -> Age: ${ageInDays} days`);
+                if (ageInDays > priorityLimit) {
+                  console.log(`   -> Issue is late!`);
+                } else {
+                  console.log(`   -> Issue is not late.`);
+                }
               }
             }
