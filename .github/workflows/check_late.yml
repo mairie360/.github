@@ -246,6 +246,7 @@ jobs:
         with:
           script: |
             const repos = JSON.parse(process.env.FETCH_REPOS_RESULT);
+            const allPRTitles = [];
 
             async function fetchPullRequests(owner, repo) {
               const query = `
@@ -289,32 +290,17 @@ jobs:
               return result.repository.pullRequests.nodes;
             }
 
-            function printPullRequest(pr) {
-              console.log(`#${pr.number} - ${pr.title} (created at ${pr.createdAt})`);
-
-              if (pr.timelineItems.nodes.length > 0) {
-                // Ne garder que les linked issues
-                const linkedIssues = pr.timelineItems.nodes.filter(linked => linked.source);
-
-                if (linkedIssues.length > 0) {
-                  console.log("  Linked issues:");
-                  linkedIssues.forEach(linked => {
-                    const src = linked.source;
-                    console.log(`    #${src.number} - ${src.title} (${src.state}) ${src.url}`);
-                  });
-                } else {
-                  // Ne rien afficher si pas d'issues
-                }
-              } else {
-                // Pas de timeline items, ne rien afficher ou un message minimal
-              }
-            }
-
-
             const owner = "${{ github.repository_owner }}";
 
             for (const repo of repos) {
               console.log(`\nFetching PRs for repo: ${repo}`);
               const pullRequests = await fetchPullRequests(owner, repo);
-              pullRequests.forEach(printPullRequest);
+
+              pullRequests.forEach(pr => {
+                console.log(`#${pr.number} - ${pr.title} (created at ${pr.createdAt})`);
+                allPRTitles.push(pr.title);
+              });
             }
+
+            console.log("\nAll PR titles collected:");
+            allPRTitles.forEach(title => console.log(` - ${title}`));
