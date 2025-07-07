@@ -9,7 +9,7 @@ jobs:
   check-project-issues:
     runs-on: ubuntu-latest
     steps:
-      - name: Query GitHub Project issues and Priority field
+      - name: Query GitHub Project issues and Priority and Status fields
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GRAPH_QL_ACCESS_TOKEN }}
@@ -51,20 +51,26 @@ jobs:
 
             const result = await github.graphql(query, { projectId });
 
-            console.log("Issues in project with Priority field:");
+            console.log("Issues in project with Priority and Status fields:");
             for (const item of result.node.items.nodes) {
               if (item.content) {
                 const issue = item.content;
                 console.log(`#${issue.number} - ${issue.title} [${issue.state}] - Created at: ${issue.createdAt}`);
 
-                // Chercher le champ Priority parmi les fieldValues
                 let priority = "N/A";
+                let status = "N/A";
+
                 for (const field of item.fieldValues.nodes) {
-                  if (field.field && field.field.name === "Priority") {
-                    priority = field.name;
-                    break;
+                  if (field.field) {
+                    if (field.field.name === "Priority") {
+                      priority = field.name;
+                    } else if (field.field.name === "Status") {
+                      status = field.name;
+                    }
                   }
                 }
+
                 console.log(`   -> Priority: ${priority}`);
+                console.log(`   -> Status: ${status}`);
               }
             }
