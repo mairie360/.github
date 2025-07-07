@@ -198,10 +198,48 @@ jobs:
         env:
           PROJECT_GITHUB_ID: ${{ vars.PROJECT_GITHUB_ID }}
 
-  get-prs:
+  get-org-prs:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch pull requests and linked issues via GraphQL
+      - name: Fetch all repos of the org
+        uses: actions/github-script@v7
+        id: fetch_repos
+        with:
+          script: |
+            async function fetchAllRepos(org) {
+              let repos = [];
+              let hasNextPage = true;
+              let after = null;
+              while (hasNextPage) {
+                const query = `
+                  query($org: String!, $after: String) {
+                    organization(login: $org) {
+                      repositories(first: 50, after: $after) {
+                        nodes {
+                          name
+                        }
+                        pageInfo {
+                          hasNextPage
+                          endCursor
+                        }
+                      }
+                    }
+                  }
+                `;
+                const variables = { org, after };
+                const result = await github.graphql(query, variables);
+                repos.push(...result.organization.repositories.nodes.map(r => r.name));
+                hasNextPage = result.organization.repositories.pageInfo.hasNextPage;
+                after = result.organization.repositories.pageInfo.endCursor;
+              }
+              return repos;
+            }
+
+            const org = "${{ github.repository_owner }}";  // ou autre org
+            const repos = await fetchAllRepos(org);
+            return repos;
+
+      - name: Fetch PRs and linked issues for each repo
         uses: actions/github-script@v7
         with:
           script: |
@@ -260,14 +298,11 @@ jobs:
               }
             }
 
-            async function main() {
-              const owner = "${{ github.repository_owner }}";
-              const repo = "${{ github.event.repository.name }}";
+            const owner = "${{ github.repository_owner }}";
+            const repos = JSON.parse('${{ steps.fetch_repos.outputs.result }}');
 
+            for (const repo of repos) {
+              console.log(`\nFetching PRs for repo: ${repo}`);
               const pullRequests = await fetchPullRequests(owner, repo);
-
-              console.log("Pull Requests with linked issues:");
               pullRequests.forEach(printPullRequest);
             }
-
-            await main();
