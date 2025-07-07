@@ -20,11 +20,11 @@ jobs:
                 query($projectId: ID!) {
                   node(id: $projectId) {
                     ... on ProjectV2 {
-                      fields(first: 20) {
+                      fields(first: 50) {
                         nodes {
-                          id
-                          name
                           ... on ProjectV2SingleSelectField {
+                            id
+                            name
                             options {
                               id
                               name
@@ -40,7 +40,7 @@ jobs:
               return result.node.fields.nodes;
             }
 
-            async function setLateFieldToYes(itemId, fieldId, optionId) {
+            async function setLateFieldToYes(projectId, itemId, fieldId, optionId) {
               const mutation = `
                 mutation($input: UpdateProjectV2ItemFieldValueInput!) {
                   updateProjectV2ItemFieldValue(input: $input) {
@@ -50,22 +50,20 @@ jobs:
                   }
                 }
               `;
-
               const variables = {
                 input: {
+                  projectId,
                   itemId,
                   fieldId,
-                  value: {
-                    singleSelectOptionId: optionId
-                  }
+                  value: { singleSelectOptionId: optionId }
                 }
               };
-
               await github.graphql(mutation, variables);
-              console.log(\`Updated item ${itemId} field ${fieldId} to option ${optionId}\`);
+              console.log(`✅ Updated item ${itemId} -> field ${fieldId} to option ${optionId}`);
             }
 
-            const projectId = "${{ vars.PROJECT_GITHUB_ID }}";
+            const projectId = process.env.PROJECT_GITHUB_ID;
+
             const priorityLimitMap = {
               "P0": 3,
               "P1": 5,
@@ -85,9 +83,9 @@ jobs:
                 query($projectId: ID!) {
                   node(id: $projectId) {
                     ... on ProjectV2 {
-                      items(first: 20) {
+                      items(first: 50) {
                         nodes {
-                          id   # <-- ici aussi, important
+                          id
                           content {
                             ... on Issue {
                               id
@@ -97,7 +95,7 @@ jobs:
                               createdAt
                             }
                           }
-                          fieldValues(first: 10) {
+                          fieldValues(first: 20) {
                             nodes {
                               ... on ProjectV2ItemFieldSingleSelectValue {
                                 name
@@ -115,7 +113,6 @@ jobs:
                   }
                 }
               `;
-
               const result = await github.graphql(query, { projectId });
               const items = result.node.items.nodes;
               return items.map(item => {
@@ -126,15 +123,13 @@ jobs:
                 let status = "N/A";
 
                 for (const field of item.fieldValues.nodes) {
-                  if (field.field) {
-                    if (field.field.name === "Priority") priority = field.name;
-                    else if (field.field.name === "Status") status = field.name;
-                  }
+                  if (field?.field?.name === "Priority") priority = field.name;
+                  else if (field?.field?.name === "Status") status = field.name;
                 }
 
                 return {
                   id: issue.id,
-                  itemId: item.id,  // essentiel pour la mutation
+                  itemId: item.id,
                   number: issue.number,
                   title: issue.title,
                   state: issue.state,
@@ -142,51 +137,61 @@ jobs:
                   priority,
                   status
                 };
-              }).filter(issue => issue !== null && issue.status.toLowerCase() === "todo");
+              }).filter(issue =>
+                issue !== null && issue.status && issue.status.toLowerCase() === "todo"
+              );
             }
 
             async function main() {
+              if (!projectId) {
+                console.log("❌ Missing PROJECT_GITHUB_ID environment variable.");
+                return;
+              }
+
+              console.log("🔍 Fetching project fields...");
               const fields = await getProjectFields(projectId);
 
               const lateField = fields.find(f => f.name === LATE_FIELD_NAME);
               if (!lateField) {
-                console.log(`Champ "${LATE_FIELD_NAME}" introuvable dans le projet`);
+                console.log(`❌ Field "${LATE_FIELD_NAME}" not found in project`);
                 return;
               }
               if (!lateField.options) {
-                console.log(`Champ "${LATE_FIELD_NAME}" n'a pas d'options Single Select`);
+                console.log(`❌ Field "${LATE_FIELD_NAME}" does not have Single Select options`);
                 return;
               }
 
               const yesOption = lateField.options.find(opt => opt.name === LATE_FIELD_VALUE_YES);
               if (!yesOption) {
-                console.log(`Option "${LATE_FIELD_VALUE_YES}" introuvable dans le champ "${LATE_FIELD_NAME}"`);
+                console.log(`❌ Option "${LATE_FIELD_VALUE_YES}" not found in "${LATE_FIELD_NAME}"`);
                 return;
               }
 
+              console.log("📋 Fetching project issues...");
               const issues = await getIssuesWithFields(projectId);
 
-              console.log("Issues with Priority and Status:");
               for (const issue of issues) {
-                console.log(`#${issue.number} - ${issue.title} [${issue.state}] - Created at: ${issue.createdAt}`);
-                console.log(`   -> Priority: ${issue.priority}`);
-                console.log(`   -> Status: ${issue.status}`);
+                console.log(`#${issue.number} - ${issue.title} (${issue.state})`);
+                console.log(`   → Priority: ${issue.priority}, Status: ${issue.status}`);
 
-                if (issue.priority !== "N/A" && issue.status !== "N/A") {
-                  const priorityLimit = priorityLimitMap[issue.priority];
-                  const ageInDays = getIssueAgeInDays(issue.createdAt);
-                  console.log(`   -> Priority Limit: ${priorityLimit} days`);
-                  console.log(`   -> Age: ${ageInDays} days`);
+                const priorityLimit = priorityLimitMap[issue.priority];
+                if (!priorityLimit) {
+                  console.log(`   ⚠ Unknown priority "${issue.priority}", skipping.`);
+                  continue;
+                }
 
-                  if (ageInDays > priorityLimit) {
-                    console.log(`   -> Issue is late!`);
-                    // Mise à jour ici
-                    await setLateFieldToYes(issue.itemId, lateField.id, yesOption.id);
-                  } else {
-                    console.log(`   -> Issue is not late.`);
-                  }
+                const ageInDays = getIssueAgeInDays(issue.createdAt);
+                console.log(`   → Age: ${ageInDays} days (limit: ${priorityLimit})`);
+
+                if (ageInDays > priorityLimit) {
+                  console.log(`   🚨 Issue is late! Updating field...`);
+                  await setLateFieldToYes(projectId, issue.itemId, lateField.id, yesOption.id);
+                } else {
+                  console.log(`   ✅ Issue is on time.`);
                 }
               }
             }
 
             await main();
+        env:
+          PROJECT_GITHUB_ID: ${{ vars.PROJECT_GITHUB_ID }}
