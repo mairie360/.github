@@ -287,7 +287,8 @@ jobs:
               `;
               const variables = { owner, repo };
               const result = await github.graphql(query, variables);
-              return result.repository.pullRequests.nodes;
+              // filtre pour ne garder que les PRs ouvertes
+              return result.repository.pullRequests.nodes.filter(pr => pr.state === "OPEN");
             }
 
             async function findAndPrintIssueInProject(prTitle, createdAt) {
