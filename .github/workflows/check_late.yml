@@ -80,7 +80,7 @@ jobs:
                   priority,
                   status
                 };
-              }).filter(Boolean);
+              }).filter(issue => issue !== null && issue.status.toLowerCase() === "open");
             }
 
             function getIssueAgeInDays(createdAt) {
