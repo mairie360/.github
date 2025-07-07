@@ -294,7 +294,7 @@ jobs:
 
               if (pr.timelineItems.nodes.length > 0) {
                 // Ne garder que les linked issues
-                const linkedIssues = pr.timelineItems.nodes.filter(linked => linked.source && linked.source.__typename === "Issue");
+                const linkedIssues = pr.timelineItems.nodes.filter(linked => linked.source);
 
                 if (linkedIssues.length > 0) {
                   console.log("  Linked issues:");
