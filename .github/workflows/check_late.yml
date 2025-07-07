@@ -2,8 +2,6 @@ name: Check issues linked to project
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 * * * *' # toutes les heures
 
 jobs:
   check-project-issues:
@@ -15,28 +13,37 @@ jobs:
           github-token: ${{ secrets.GRAPH_QL_ACCESS_TOKEN }}
           script: |
             const projectId = "${{ vars.PROJECT_GITHUB_ID }}";
+            const priorityLimitMap = {
+              "P0": 3,
+              "P1": 5,
+              "P2": 7,
+              "P3": 10,
+            };
 
-            const query = `
-              query($projectId: ID!) {
-                node(id: $projectId) {
-                  ... on ProjectV2 {
-                    items(first: 20) {
-                      nodes {
-                        content {
-                          ... on Issue {
-                            title
-                            number
-                            state
-                            createdAt
+            async function getIssuesWithFields(projectId) {
+              const query = `
+                query($projectId: ID!) {
+                  node(id: $projectId) {
+                    ... on ProjectV2 {
+                      items(first: 20) {
+                        nodes {
+                          content {
+                            ... on Issue {
+                              id
+                              title
+                              number
+                              state
+                              createdAt
+                            }
                           }
-                        }
-                        fieldValues(first: 10) {
-                          nodes {
-                            ... on ProjectV2ItemFieldSingleSelectValue {
-                              name
-                              field {
-                                ... on ProjectV2SingleSelectField {
-                                  name
+                          fieldValues(first: 10) {
+                            nodes {
+                              ... on ProjectV2ItemFieldSingleSelectValue {
+                                name
+                                field {
+                                  ... on ProjectV2SingleSelectField {
+                                    name
+                                  }
                                 }
                               }
                             }
@@ -46,31 +53,56 @@ jobs:
                     }
                   }
                 }
-              }
-            `;
+              `;
 
-            const result = await github.graphql(query, { projectId });
-
-            console.log("Issues in project with Priority and Status fields:");
-            for (const item of result.node.items.nodes) {
-              if (item.content) {
+              const result = await github.graphql(query, { projectId });
+              const items = result.node.items.nodes;
+              return items.map(item => {
                 const issue = item.content;
-                console.log(`#${issue.number} - ${issue.title} [${issue.state}] - Created at: ${issue.createdAt}`);
+                if (!issue) return null;
 
                 let priority = "N/A";
                 let status = "N/A";
 
                 for (const field of item.fieldValues.nodes) {
                   if (field.field) {
-                    if (field.field.name === "Priority") {
-                      priority = field.name;
-                    } else if (field.field.name === "Status") {
-                      status = field.name;
-                    }
+                    if (field.field.name === "Priority") priority = field.name;
+                    else if (field.field.name === "Status") status = field.name;
                   }
                 }
 
-                console.log(`   -> Priority: ${priority}`);
-                console.log(`   -> Status: ${status}`);
+                return {
+                  id: issue.id,
+                  number: issue.number,
+                  title: issue.title,
+                  state: issue.state,
+                  createdAt: issue.createdAt,
+                  priority,
+                  status
+                };
+              }).filter(Boolean);
+            }
+
+            function getIssueAgeInDays(createdAt) {
+              const createdDate = new Date(createdAt);
+              const now = new Date();
+              const diffMs = now - createdDate; // différence en millisecondes
+
+              const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+              return days;
+            }
+
+            // Utilisation de la fonction
+            const issues = await getIssuesWithFields(projectId);
+
+            console.log("Issues with Priority and Status:");
+            for (const issue of issues) {
+              console.log(`#${issue.number} - ${issue.title} [${issue.state}] - Created at: ${issue.createdAt}`);
+              console.log(`   -> Priority: ${issue.priority}`);
+              console.log(`   -> Status: ${issue.status}`);
+              if (issue.priority !== "N/A" && issue.status !== "N/A") {
+                const priorityLimit = priorityLimitMap[issue.priority];
+                const ageInDays = getIssueAgeInDays(issue.createdAt);
+                console.log(`   -> Age: ${ageInDays} days`);
               }
             }
