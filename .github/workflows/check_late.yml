@@ -1,4 +1,4 @@
-name: Check issues linked to project
+name: Check Late Issues in GitHub Project
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ jobs:
   check-project-issues:
     runs-on: ubuntu-latest
     steps:
-      - name: Query GitHub Project issues and Priority and Status fields
+      - name: Check Late ToDo Issues
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GRAPH_QL_ACCESS_TOKEN }}
