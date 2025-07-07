@@ -2,6 +2,8 @@ name: Check Late Issues in GitHub Project
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour, adjust as needed
 
 jobs:
   check-project-issues:
