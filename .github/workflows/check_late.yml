@@ -298,6 +298,49 @@ jobs:
               return result.repository.pullRequests.nodes.filter(pr => pr.state === "OPEN");
             }
 
+            async function getReviewUrgenteOptionOuiId(projectId) {
+              const query = `
+                query($projectId: ID!) {
+                  node(id: $projectId) {
+                    ... on ProjectV2 {
+                      fields(first: 20) {
+                        nodes {
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `;
+
+              const result = await github.graphql(query, { projectId });
+              const fields = result.node?.fields?.nodes || [];
+
+              // Trouver le champ "Review urgente" en vérifiant que name existe
+              const reviewUrgenteField = fields.find(f => f.name && f.name.toLowerCase() === "review urgente");
+              if (!reviewUrgenteField) {
+                console.log("❌ Champ 'Review urgente' non trouvé dans ce projet.");
+                return null;
+              }
+
+              // Trouver l'option "Oui" en vérifiant que name existe
+              const optionOui = reviewUrgenteField.options.find(o => o.name && o.name.toLowerCase() === "oui");
+              if (!optionOui) {
+                console.log("❌ Option 'Oui' non trouvée dans le champ 'Review urgente'.");
+                return null;
+              }
+
+              console.log(`ℹ️ Option "Oui" ID: ${optionOui.id}`);
+              return optionOui.id;
+            }
+
             async function findAndPrintIssueInProject(prTitle, createdAt) {
               if (!process.env.PROJECT_GITHUB_ID) {
                 console.log("❌ Missing PROJECT_GITHUB_ID environment variable.");
@@ -386,9 +429,9 @@ jobs:
                   }
 
                   // Sinon mise à jour avec l'ID "Oui"
-                  const optionOuiId = process.env.REVIEW_URGENTE_OPTION_OUI_ID;
+                  const optionOuiId = await getReviewUrgenteOptionOuiId(projectId);
                   if (!optionOuiId) {
-                    console.log("❌ Missing REVIEW_URGENTE_OPTION_OUI_ID environment variable.");
+                    console.log("❌ Impossible de récupérer l'ID de l'option 'Oui'.");
                     return;
                   }
 
