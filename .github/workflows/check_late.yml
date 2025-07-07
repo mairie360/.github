@@ -349,9 +349,49 @@ jobs:
 
                 if (diffDays > 7) {
                   console.log(`⚠️ This issue has been open for more than ${diffDays} days.`);
+
+                  // Appel de la fonction pour mettre Review urgente à Oui
+                  await setReviewUrgenteToYes(found.id);
                 }
               } else {
                 console.log(`🚫 No issue in project matches PR "${prTitle}".`);
+              }
+            }
+
+            async function setReviewUrgenteToYes(itemId) {
+              if (!process.env.REVIEW_URGENTE_FIELD_ID) {
+                console.log("❌ Missing REVIEW_URGENTE_FIELD_ID environment variable.");
+                return;
+              }
+
+              const fieldId = process.env.REVIEW_URGENTE_FIELD_ID;
+
+              const mutation = `
+                mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+                  updateProjectV2ItemFieldValue(input: $input) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+
+              const variables = {
+                input: {
+                  projectId: process.env.PROJECT_GITHUB_ID,
+                  itemId: itemId,
+                  fieldId: fieldId,
+                  value: {
+                    singleSelectOptionId: "Oui" // à remplacer par l'ID de l’option « Oui »
+                  }
+                }
+              };
+
+              try {
+                const result = await github.graphql(mutation, variables);
+                console.log(`✅ Review urgente set to "Oui" for item ${itemId}`);
+              } catch (error) {
+                console.error(`🚨 Failed to set Review urgente: ${error}`);
               }
             }
 
