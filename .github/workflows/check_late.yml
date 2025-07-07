@@ -12,6 +12,59 @@ jobs:
         with:
           github-token: ${{ secrets.GRAPH_QL_ACCESS_TOKEN }}
           script: |
+            const LATE_FIELD_NAME = "En retard";
+            const LATE_FIELD_VALUE_YES = "Oui";
+
+            async function getProjectFields(projectId) {
+              const query = `
+                query($projectId: ID!) {
+                  node(id: $projectId) {
+                    ... on ProjectV2 {
+                      fields(first: 20) {
+                        nodes {
+                          id
+                          name
+                          ... on ProjectV2SingleSelectField {
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `;
+              const result = await github.graphql(query, { projectId });
+              return result.node.fields.nodes;
+            }
+
+            async function setLateFieldToYes(itemId, fieldId, optionId) {
+              const mutation = `
+                mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+                  updateProjectV2ItemFieldValue(input: $input) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+
+              const variables = {
+                input: {
+                  itemId,
+                  fieldId,
+                  value: {
+                    singleSelectOptionId: optionId
+                  }
+                }
+              };
+
+              await github.graphql(mutation, variables);
+              console.log(\`Updated item ${itemId} field ${fieldId} to option ${optionId}\`);
+            }
+
             const projectId = "${{ vars.PROJECT_GITHUB_ID }}";
             const priorityLimitMap = {
               "P0": 3,
@@ -20,6 +73,13 @@ jobs:
               "P3": 10,
             };
 
+            function getIssueAgeInDays(createdAt) {
+              const createdDate = new Date(createdAt);
+              const now = new Date();
+              const diffMs = now - createdDate;
+              return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            }
+
             async function getIssuesWithFields(projectId) {
               const query = `
                 query($projectId: ID!) {
@@ -27,6 +87,7 @@ jobs:
                     ... on ProjectV2 {
                       items(first: 20) {
                         nodes {
+                          id   # <-- ici aussi, important
                           content {
                             ... on Issue {
                               id
@@ -73,6 +134,7 @@ jobs:
 
                 return {
                   id: issue.id,
+                  itemId: item.id,  // essentiel pour la mutation
                   number: issue.number,
                   title: issue.title,
                   state: issue.state,
@@ -83,32 +145,48 @@ jobs:
               }).filter(issue => issue !== null && issue.status.toLowerCase() === "todo");
             }
 
-            function getIssueAgeInDays(createdAt) {
-              const createdDate = new Date(createdAt);
-              const now = new Date();
-              const diffMs = now - createdDate; // différence en millisecondes
+            async function main() {
+              const fields = await getProjectFields(projectId);
 
-              const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-              return days;
-            }
+              const lateField = fields.find(f => f.name === LATE_FIELD_NAME);
+              if (!lateField) {
+                console.log(`Champ "${LATE_FIELD_NAME}" introuvable dans le projet`);
+                return;
+              }
+              if (!lateField.options) {
+                console.log(`Champ "${LATE_FIELD_NAME}" n'a pas d'options Single Select`);
+                return;
+              }
 
-            // Utilisation de la fonction
-            const issues = await getIssuesWithFields(projectId);
+              const yesOption = lateField.options.find(opt => opt.name === LATE_FIELD_VALUE_YES);
+              if (!yesOption) {
+                console.log(`Option "${LATE_FIELD_VALUE_YES}" introuvable dans le champ "${LATE_FIELD_NAME}"`);
+                return;
+              }
 
-            console.log("Issues with Priority and Status:");
-            for (const issue of issues) {
-              console.log(`#${issue.number} - ${issue.title} [${issue.state}] - Created at: ${issue.createdAt}`);
-              console.log(`   -> Priority: ${issue.priority}`);
-              console.log(`   -> Status: ${issue.status}`);
-              if (issue.priority !== "N/A" && issue.status !== "N/A") {
-                const priorityLimit = priorityLimitMap[issue.priority];
-                const ageInDays = getIssueAgeInDays(issue.createdAt);
-                console.log(`   -> Priority Limit: ${priorityLimit} days`);
-                console.log(`   -> Age: ${ageInDays} days`);
-                if (ageInDays > priorityLimit) {
-                  console.log(`   -> Issue is late!`);
-                } else {
-                  console.log(`   -> Issue is not late.`);
+              const issues = await getIssuesWithFields(projectId);
+
+              console.log("Issues with Priority and Status:");
+              for (const issue of issues) {
+                console.log(`#${issue.number} - ${issue.title} [${issue.state}] - Created at: ${issue.createdAt}`);
+                console.log(`   -> Priority: ${issue.priority}`);
+                console.log(`   -> Status: ${issue.status}`);
+
+                if (issue.priority !== "N/A" && issue.status !== "N/A") {
+                  const priorityLimit = priorityLimitMap[issue.priority];
+                  const ageInDays = getIssueAgeInDays(issue.createdAt);
+                  console.log(`   -> Priority Limit: ${priorityLimit} days`);
+                  console.log(`   -> Age: ${ageInDays} days`);
+
+                  if (ageInDays > priorityLimit) {
+                    console.log(`   -> Issue is late!`);
+                    // Mise à jour ici
+                    await setLateFieldToYes(issue.itemId, lateField.id, yesOption.id);
+                  } else {
+                    console.log(`   -> Issue is not late.`);
+                  }
                 }
               }
             }
+
+            await main();
