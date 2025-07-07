@@ -202,8 +202,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch all repos of the org
-        uses: actions/github-script@v7
         id: fetch_repos
+        uses: actions/github-script@v7
         with:
           script: |
             async function fetchAllRepos(org) {
@@ -235,14 +235,18 @@ jobs:
               return repos;
             }
 
-            const org = "${{ github.repository_owner }}";  // ou autre org
+            const org = "mairie360";
             const repos = await fetchAllRepos(org);
             return repos;
 
       - name: Fetch PRs and linked issues for each repo
         uses: actions/github-script@v7
+        env:
+          FETCH_REPOS_RESULT: ${{ steps.fetch_repos.outputs.result }}
         with:
           script: |
+            const repos = JSON.parse(process.env.FETCH_REPOS_RESULT);
+
             async function fetchPullRequests(owner, repo) {
               const query = `
                 query($owner: String!, $repo: String!) {
@@ -264,6 +268,7 @@ jobs:
                             ... on ConnectedEvent {
                               id
                               source {
+                                __typename
                                 ... on Issue {
                                   number
                                   title
@@ -286,20 +291,19 @@ jobs:
 
             function printPullRequest(pr) {
               console.log(`#${pr.number} - ${pr.title} (created at ${pr.createdAt})`);
+
               if (pr.timelineItems.nodes.length > 0) {
-                console.log("  Linked issues:");
+                console.log("  Linked sources:");
                 pr.timelineItems.nodes.forEach(linked => {
-                  if (linked.source) {
-                    console.log(`    #${linked.source.number} - ${linked.source.title} (${linked.source.state}) ${linked.source.url}`);
-                  }
+                  const src = linked.source;
+                  console.log(`    Type: ${src ? src.__typename : 'null'}`, src);
                 });
               } else {
-                console.log("  No linked issues found.");
+                console.log("  No timeline items found.");
               }
             }
 
             const owner = "${{ github.repository_owner }}";
-            const repos = JSON.parse('${{ steps.fetch_repos.outputs.result }}');
 
             for (const repo of repos) {
               console.log(`\nFetching PRs for repo: ${repo}`);
