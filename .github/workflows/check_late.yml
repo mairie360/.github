@@ -290,17 +290,64 @@ jobs:
               return result.repository.pullRequests.nodes;
             }
 
+            async function findAndPrintIssueInProject(prTitle, createdAt) {
+              if (!process.env.PROJECT_GITHUB_ID) {
+                console.log("❌ Missing PROJECT_GITHUB_ID environment variable.");
+                return;
+              }
+
+              const projectId = process.env.PROJECT_GITHUB_ID;
+
+              const query = `
+                query($projectId: ID!) {
+                  node(id: $projectId) {
+                    ... on ProjectV2 {
+                      items(first: 50) {
+                        nodes {
+                          id
+                          content {
+                            ... on Issue {
+                              id
+                              title
+                              state
+                              createdAt
+                              number
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `;
+
+              const result = await github.graphql(query, { projectId });
+              const items = result.node.items.nodes;
+
+              const found = items.find(item =>
+                item.content && item.content.title === prTitle
+              );
+
+              if (found) {
+                console.log(`🎯 Found issue in project for PR "${prTitle}":`);
+                console.log(`   - Issue #${found.content.number}`);
+                console.log(`   - State: ${found.content.state}`);
+                console.log(`   - Created at: ${found.content.createdAt}`);
+              } else {
+                console.log(`🚫 No issue in project matches PR "${prTitle}".`);
+              }
+            }
+
             const owner = "${{ github.repository_owner }}";
 
             for (const repo of repos) {
               console.log(`\nFetching PRs for repo: ${repo}`);
               const pullRequests = await fetchPullRequests(owner, repo);
 
-              pullRequests.forEach(pr => {
+              pullRequests.forEach(async pr => {
                 console.log(`#${pr.number} - ${pr.title} (created at ${pr.createdAt})`);
                 allPRTitles.push(pr.title);
+
+                await findAndPrintIssueInProject(pr.title, pr.createdAt);
               });
             }
-
-            console.log("\nAll PR titles collected:");
-            allPRTitles.forEach(title => console.log(` - ${title}`));
