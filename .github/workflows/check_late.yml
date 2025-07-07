@@ -322,6 +322,20 @@ jobs:
                               number
                             }
                           }
+                          fieldValues(first: 20) {
+                            nodes {
+                              ... on ProjectV2ItemFieldSingleSelectValue {
+                                id            # id de la valeur sélectionnée (optionId)
+                                name          # nom de la valeur (ex: "Oui")
+                                field {
+                                  ... on ProjectV2SingleSelectField {
+                                    id          # id du champ
+                                    name        # nom du champ (ex: "Review urgente")
+                                  }
+                                }
+                              }
+                            }
+                          }
                         }
                       }
                     }
@@ -330,10 +344,10 @@ jobs:
               `;
 
               const result = await github.graphql(query, { projectId });
-              const items = result.node.items.nodes;
+              const items = result.node?.items?.nodes || [];
 
               const found = items.find(item =>
-                item.content && item.content.title === prTitle
+                item.content?.title === prTitle
               );
 
               if (found) {
@@ -342,7 +356,12 @@ jobs:
                 console.log(`   - State: ${found.content.state}`);
                 console.log(`   - Created at: ${found.content.createdAt}`);
 
-                // Vérifie si l'issue est ouverte depuis plus d'une semaine
+                for (const fieldValue of found.fieldValues?.nodes || []) {
+                  if (fieldValue?.field) {
+                    console.log(`Field "${fieldValue.field.name}" (id: ${fieldValue.field.id}) = "${fieldValue.name}" (value id: ${fieldValue.id})`);
+                  }
+                }
+
                 const issueCreatedDate = new Date(found.content.createdAt);
                 const now = new Date();
                 const diffDays = Math.floor((now - issueCreatedDate) / (1000 * 60 * 60 * 24));
@@ -350,21 +369,41 @@ jobs:
                 if (diffDays > 7) {
                   console.log(`⚠️ This issue has been open for more than ${diffDays} days.`);
 
-                  // Appel de la fonction pour mettre Review urgente à Oui
-                  await setReviewUrgenteToYes(found.id);
+                  // Cherche le champ "Review urgente" (insensible à la casse et en évitant les erreurs)
+                  const reviewUrgenteField = found.fieldValues?.nodes.find(fv =>
+                    fv.field?.name?.toLowerCase() === "review urgente"
+                  );
+
+                  if (!reviewUrgenteField) {
+                    console.log("❌ 'Review urgente' field not found in this issue.");
+                    return;
+                  }
+
+                  // Si c’est déjà "Oui", on ne fait rien
+                  if (reviewUrgenteField.name?.toLowerCase() === "oui") {
+                    console.log("ℹ️ 'Review urgente' field is already set to 'Oui'.");
+                    return;
+                  }
+
+                  // Sinon mise à jour avec l'ID "Oui"
+                  const optionOuiId = process.env.REVIEW_URGENTE_OPTION_OUI_ID;
+                  if (!optionOuiId) {
+                    console.log("❌ Missing REVIEW_URGENTE_OPTION_OUI_ID environment variable.");
+                    return;
+                  }
+
+                  await setFieldValue(projectId, found.id, reviewUrgenteField.field.id, optionOuiId);
                 }
               } else {
                 console.log(`🚫 No issue in project matches PR "${prTitle}".`);
               }
             }
 
-            async function setReviewUrgenteToYes(itemId) {
-              if (!process.env.REVIEW_URGENTE_FIELD_ID) {
-                console.log("❌ Missing REVIEW_URGENTE_FIELD_ID environment variable.");
+            async function setFieldValue(projectId, itemId, fieldId, singleSelectOptionId) {
+              if (!projectId || !itemId || !fieldId || !singleSelectOptionId) {
+                console.log("❌ Missing parameters for setFieldValue");
                 return;
               }
-
-              const fieldId = process.env.REVIEW_URGENTE_FIELD_ID;
 
               const mutation = `
                 mutation($input: UpdateProjectV2ItemFieldValueInput!) {
@@ -378,20 +417,20 @@ jobs:
 
               const variables = {
                 input: {
-                  projectId: process.env.PROJECT_GITHUB_ID,
-                  itemId: itemId,
-                  fieldId: fieldId,
+                  projectId,
+                  itemId,
+                  fieldId,
                   value: {
-                    singleSelectOptionId: "Oui" // à remplacer par l'ID de l’option « Oui »
+                    singleSelectOptionId
                   }
                 }
               };
 
               try {
-                const result = await github.graphql(mutation, variables);
-                console.log(`✅ Review urgente set to "Oui" for item ${itemId}`);
+                await github.graphql(mutation, variables);
+                console.log(`✅ Field ${fieldId} set to option ${singleSelectOptionId} for item ${itemId}`);
               } catch (error) {
-                console.error(`🚨 Failed to set Review urgente: ${error}`);
+                console.error(`🚨 Failed to set field value: ${error}`);
               }
             }
 
@@ -401,10 +440,10 @@ jobs:
               console.log(`\nFetching PRs for repo: ${repo}`);
               const pullRequests = await fetchPullRequests(owner, repo);
 
-              pullRequests.forEach(async pr => {
+              for (const pr of pullRequests) {
                 console.log(`#${pr.number} - ${pr.title} (created at ${pr.createdAt})`);
                 allPRTitles.push(pr.title);
 
                 await findAndPrintIssueInProject(pr.title, pr.createdAt);
-              });
+              }
             }
