@@ -27,6 +27,7 @@ jobs:
                             title
                             number
                             state
+                            createdAt
                           }
                         }
                         fieldValues(first: 10) {
@@ -48,19 +49,22 @@ jobs:
               }
             `;
 
-            const result = await github.graphql(query, {
-              projectId: projectId
-            });
+            const result = await github.graphql(query, { projectId });
 
             console.log("Issues in project with Priority field:");
             for (const item of result.node.items.nodes) {
               if (item.content) {
-                console.log(`#${item.content.number} - ${item.content.title} [${item.content.state}]`);
-                // Chercher le champ Priority
+                const issue = item.content;
+                console.log(`#${issue.number} - ${issue.title} [${issue.state}] - Created at: ${issue.createdAt}`);
+
+                // Chercher le champ Priority parmi les fieldValues
+                let priority = "N/A";
                 for (const field of item.fieldValues.nodes) {
                   if (field.field && field.field.name === "Priority") {
-                    console.log(`   -> Priority: ${field.name}`);
+                    priority = field.name;
+                    break;
                   }
                 }
+                console.log(`   -> Priority: ${priority}`);
               }
             }
