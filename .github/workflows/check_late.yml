@@ -1,0 +1,48 @@
+name: Check issues linked to project
+
+on:
+  workflow_dispatch: # lancement manuel
+  # schedule:
+  #   - cron: '0 * * * *' # toutes les heures
+
+jobs:
+  check-project-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Query GitHub Project issues
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const projectId = "${{ vars.PROJECT_GITHUB_ID }}";
+            const query = `
+              query($projectId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 20) {
+                      nodes {
+                        content {
+                          ... on Issue {
+                            title
+                            number
+                            state
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            const result = await github.graphql(query, {
+              projectId: projectId
+            });
+
+            console.log("Issues in project:");
+            for (const item of result.node.items.nodes) {
+              if (item.content) {
+                console.log(`#${item.content.number} - ${item.content.title}`);
+              }
+            }
+
