@@ -2,8 +2,8 @@ name: Check Late Issues in GitHub Project
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 * * * *'  # Runs every hour, adjust as needed
+  # schedule:
+  #   - cron: '0 * * * *'  # Runs every hour, adjust as needed
 
 jobs:
   check-project-issues:
@@ -197,3 +197,77 @@ jobs:
             await main();
         env:
           PROJECT_GITHUB_ID: ${{ vars.PROJECT_GITHUB_ID }}
+
+  get-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch pull requests and linked issues via GraphQL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            async function fetchPullRequests(owner, repo) {
+              const query = `
+                query($owner: String!, $repo: String!) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequests(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
+                      nodes {
+                        number
+                        title
+                        createdAt
+                        state
+                        url
+                        labels(first: 5) {
+                          nodes {
+                            name
+                          }
+                        }
+                        timelineItems(itemTypes: [CONNECTED_EVENT], first: 5) {
+                          nodes {
+                            ... on ConnectedEvent {
+                              id
+                              source {
+                                ... on Issue {
+                                  number
+                                  title
+                                  url
+                                  state
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `;
+              const variables = { owner, repo };
+              const result = await github.graphql(query, variables);
+              return result.repository.pullRequests.nodes;
+            }
+
+            function printPullRequest(pr) {
+              console.log(`#${pr.number} - ${pr.title} (created at ${pr.createdAt})`);
+              if (pr.timelineItems.nodes.length > 0) {
+                console.log("  Linked issues:");
+                pr.timelineItems.nodes.forEach(linked => {
+                  if (linked.source) {
+                    console.log(`    #${linked.source.number} - ${linked.source.title} (${linked.source.state}) ${linked.source.url}`);
+                  }
+                });
+              } else {
+                console.log("  No linked issues found.");
+              }
+            }
+
+            async function main() {
+              const owner = "${{ github.repository_owner }}";
+              const repo = "${{ github.event.repository.name }}";
+
+              const pullRequests = await fetchPullRequests(owner, repo);
+
+              console.log("Pull Requests with linked issues:");
+              pullRequests.forEach(printPullRequest);
+            }
+
+            await main();
