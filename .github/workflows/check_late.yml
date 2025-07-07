@@ -341,6 +341,15 @@ jobs:
                 console.log(`   - Issue #${found.content.number}`);
                 console.log(`   - State: ${found.content.state}`);
                 console.log(`   - Created at: ${found.content.createdAt}`);
+
+                // Vérifie si l'issue est ouverte depuis plus d'une semaine
+                const issueCreatedDate = new Date(found.content.createdAt);
+                const now = new Date();
+                const diffDays = Math.floor((now - issueCreatedDate) / (1000 * 60 * 60 * 24));
+
+                if (diffDays > 7) {
+                  console.log(`⚠️ This issue has been open for more than ${diffDays} days.`);
+                }
               } else {
                 console.log(`🚫 No issue in project matches PR "${prTitle}".`);
               }
