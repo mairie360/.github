@@ -5,6 +5,10 @@ on:
   # schedule:
   #   - cron: '0 * * * *'  # Runs every hour, adjust as needed
 
+env:
+  GITHUB_TOKEN_OVERRIDE: ${{ secrets.GRAPH_QL_ACCESS_TOKEN }}
+  PROJECT_GITHUB_ID: ${{ vars.PROJECT_GITHUB_ID }}
+
 jobs:
   check-project-issues:
     runs-on: ubuntu-latest
@@ -12,7 +16,7 @@ jobs:
       - name: Check Late ToDo Issues
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GRAPH_QL_ACCESS_TOKEN }}
+          github-token: ${{ env.GITHUB_TOKEN_OVERRIDE }}
           script: |
             const LATE_FIELD_NAME = "En retard";
             const LATE_FIELD_VALUE_YES = "Oui";
@@ -196,7 +200,7 @@ jobs:
 
             await main();
         env:
-          PROJECT_GITHUB_ID: ${{ vars.PROJECT_GITHUB_ID }}
+          PROJECT_GITHUB_ID: ${{ env.PROJECT_GITHUB_ID }}
 
   get-org-prs:
     runs-on: ubuntu-latest
@@ -205,6 +209,7 @@ jobs:
         id: fetch_repos
         uses: actions/github-script@v7
         with:
+          github-token: ${{ env.GITHUB_TOKEN_OVERRIDE }}
           script: |
             async function fetchAllRepos(org) {
               let repos = [];
@@ -243,7 +248,9 @@ jobs:
         uses: actions/github-script@v7
         env:
           FETCH_REPOS_RESULT: ${{ steps.fetch_repos.outputs.result }}
+          PROJECT_GITHUB_ID: ${{ env.PROJECT_GITHUB_ID }}
         with:
+          github-token: ${{ env.GITHUB_TOKEN_OVERRIDE }}
           script: |
             const repos = JSON.parse(process.env.FETCH_REPOS_RESULT);
             const allPRTitles = [];
