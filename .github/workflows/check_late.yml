@@ -2,15 +2,15 @@ name: Check Late Issues in GitHub Project
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 * * * *'  # Runs every hour, adjust as needed
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour, adjust as needed
 
 env:
   GITHUB_TOKEN_OVERRIDE: ${{ secrets.GRAPH_QL_ACCESS_TOKEN }}
   PROJECT_GITHUB_ID: ${{ vars.PROJECT_GITHUB_ID }}
 
 jobs:
-  check-project-issues:
+  check-todo-issues:
     runs-on: ubuntu-latest
     steps:
       - name: Check Late ToDo Issues
@@ -202,7 +202,8 @@ jobs:
         env:
           PROJECT_GITHUB_ID: ${{ env.PROJECT_GITHUB_ID }}
 
-  get-org-prs:
+  check-open-prs:
+    name: Check Open PRs and Link Issues since 7 days
     runs-on: ubuntu-latest
     steps:
       - name: Fetch all repos of the org
