@@ -1,34 +1,40 @@
 # Mairie360
 
-Welcome to the **Mairie360** GitHub organization
+Bienvenue sur l’organisation GitHub de **Mairie360**
 
-**Mairie360** is dedicated to modernizing and improving the productivity of French town halls in the face of digital challenges. We provide a suite of digital tools designed specifically for municipalities to streamline operations, enhance collaboration, and improve efficiency. 
+**Mairie360** a pour mission de moderniser et d’améliorer la productivité des mairies françaises face aux défis du numérique.
+Nous proposons une suite d’outils digitaux conçus spécialement pour les collectivités locales afin de simplifier leurs opérations, renforcer la collaboration et améliorer leur efficacité.
 
-## Our Mission
+## Notre mission
 
-We aim to bridge the gap between traditional governance and the digital age. Our solutions are designed to make municipal management easier, more secure, and more efficient by offering tools that meet the unique needs of local governments.
+Nous souhaitons combler le fossé entre la gouvernance traditionnelle et l’ère numérique.
+Nos solutions sont pensées pour rendre la gestion municipale plus simple, plus sécurisée et plus performante, en offrant des outils adaptés aux besoins spécifiques des administrations locales.
 
 ## Modules
 
-- [**Calendars**](https://github.com/mairie360/calendars): A comprehensive calendar system for managing events, meetings, and schedules.  
-- [**Files**](https://github.com/mairie360/files): A file management system for storing, sharing, and collaborating on documents securely.  
-- [**Messages**](https://github.com/mairie360/messages): A messaging platform for internal communication, announcements, and updates.  
-- [**Emails**](https://github.com/mairie360/emails): An email management system for sending, receiving, and organizing emails efficiently.  
-- [**Projects**](https://github.com/mairie360/projects): A project management tool for planning, tracking, and executing municipal projects.  
+- [**Calendriers**](https://github.com/mairie360/calendars): Un système complet de gestion des événements, réunions et plannings.
+- [**Fichiers**](https://github.com/mairie360/files): Un module de gestion documentaire pour stocker, partager et collaborer de manière sécurisée.  
+- [**Messages**](https://github.com/mairie360/messages): Une plateforme de communication interne pour les échanges, annonces et mises à jour.  
+- [**Emails**](https://github.com/mairie360/emails): Un outil de gestion des courriels pour envoyer, recevoir et organiser efficacement les messages électroniques.  
+- [**Projets**](https://github.com/mairie360/projects): Un espace de gestion de projets pour planifier, suivre et exécuter les actions municipales.
+- [**Formation**](https://github.com/mairie360/e-learning): Un espace de formation avec des vidéos, des pdfs et bien d'autres.
 
 ## Orchestration
 
-The [**Core**](https://github.com/mairie360/core) module is the backbone of Mairie360, orchestrating all other modules and ensuring seamless integration and communication between them. It provides a unified interface for managing all aspects of municipal operations.
+Le module [**Core**](https://github.com/mairie360/core) constitue le cœur de Mairie360.
+Il orchestre l’ensemble des modules et garantit leur intégration fluide et leur interopérabilité.
+Il fournit une interface unifiée pour piloter tous les aspects de la gestion municipale.
 
-## Getting Started
+## Prise en main
 
-To test Mairie360, visit the main [Mairie360](https://github.com/mairie360/mairie360) repository and follow the instructions in the README file.
+[Mairie360](https://github.com/mairie360/mairie360) Pour tester Mairie360, rendez-vous sur le dépôt principal Mairie360 et suivez les instructions du fichier README.
 
-# For Contributors
+# Contribution
 
-We welcome contributions to Mairie360! Please refer to our guides:
+Nous accueillons avec plaisir toute contribution au projet Mairie360 !
+Veuillez consulter nos guides avant de participer :
 
-- [**Code Review**](../CODE_REVIEW.md): Guidelines for reviewing code changes.
-- [**Version Control**](../VERSION_CONTROL.md): Best practices for managing project versions and commit conventions.
-- [**Collaboration**](../COLLABORATION.md): How to effectively use GitHub Projects for task management.
-- [**Feature Handling**](../TESTING.md): Guidelines for testing and quality assurance.
+- [**Revue de code**](../CODE_REVIEW.md): Bonnes pratiques pour examiner et valider les modifications de code.
+- [**Gestion des versions**](../VERSION_CONTROL.md): Règles de versionnage et conventions de commits.
+- [**Collaboration**](../COLLABORATION.md): Utilisation de GitHub Projects pour la gestion des tâches.
+- [**Tests et Qualité**](../TESTING.md): Recommandations pour les tests et l’assurance qualité.
