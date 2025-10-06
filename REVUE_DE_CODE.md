@@ -1,4 +1,4 @@
-# 🔍 **Processus de revue de code : Garantir la qualité avant l’intégration*
+# 🔍 *Processus de revue de code : Garantir la qualité avant l’intégration*
 
 Un processus de **revue de code** structuré permet d’assurer la qualité, la maintenabilité et la cohérence du code avant son intégration dans la branche principale.
 
