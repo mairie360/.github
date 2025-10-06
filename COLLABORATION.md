@@ -1,84 +1,84 @@
-# 🚀 **GitHub Projects Usage Guide**  
+# 🚀 **Guide d’utilisation de GitHub Projects**  
 
 ## 📌 Introduction  
 
-This document will guide you through using **GitHub Projects**, a powerful tool for project management. It helps track task progress, manage issues, and improve overall workflow efficiency.  
+**GitHub Projects** est un outil de gestion de projet intégré à GitHub.
+Il permet de suivre l’avancement des tâches, gérer les issues et améliorer l’efficacité du travail en équipe.
 
 ---
 
-## 🏗️ Step 1: Navigate to the "Projects" Section  
+## 🏗️ Etape 1: Accéder à la section "Projects"  
 
-In your repository, click on the **Projects** tab to access the project management interface.  
+Dans votre dépôt, cliquez sur l’onglet **Projects** pour ouvrir le tableau de gestion.
 
-### 📋 Overview of the Sections  
+### 📋 Colonnes principales 
 
-- **Backlog**: Contains all tasks that need to be handled. It is divided into three columns:  
-  -  **To Do**: Tasks that need to be started.  
-  -  **In Progress**: Tasks currently being worked on.
-  -  **In Review**: Tasks that are under review.
-  -  **Done**: Completed tasks.  
+- **Backlog**: Contient toutes les tâches qui doivent être effectuées.
+  -  **To Do**: Les tâches qui doivent être effectuées.  
+  -  **In Progress**: Les tâches qui sont en cours.
+  -  **In Review**: Les tâches qui doivent être vérifier.
+  -  **Done**: Les tâches terminées.  
 
-- **👥 Team Capacity**: Displays the team's workload, helping to manage task distribution.  
+- **👥 Team Capacity**: charge de travail de l’équipe.
 
-- **📅 Current Iteration**: Shows the tasks included in the current iteration.  
+- **📅 Current Iteration**: tâches du sprint en cours.  
 
-- **🛤️ Roadmap**: Provides an overview of the project timeline, tracking progress and deadlines.  
+- **🛤️ Roadmap**: vue d’ensemble du projet. 
 
-- **📌 My Items**: Lists the tasks assigned to you.  
+- **📌 My Items**: vos tâches personnelles.
 
 ---
 
-## 📝 Step 2: Create a New Issue  
+## 📝 Etape 2: Créer une nouvelle issue 
 
-1. In the **To Do** column, click on the **Add Item** button.
-2. Enter after the **#** enter the repository name and press **Enter**.
-   - Example: `#mairie360/mairie360`
-3. Enter a descriptive name for the issue and press **Enter**.  
-4. Select **Create Blank Issue** and fill in the details.  
-5. Add a **description** and click **Create**.  
+1. Dans la colonne **To Do**, cliquez sur le bouton **Add Item**.
+2. Entrez le nom du dépôt après **#**.
+   - Exemple: `#mairie360/mairie360` 
+3. Nommez l’issue, puis sélectionnez **Create Blank Issue**.  
+4. Ajoutez une **description** et cliquez sur **Create**.  
 
-### 📌 Issue Details  
+### 📌 Détails à renseigner
 
 Once created, the issue will appear in the **To Do** column. Click on it to update its details:  
 
-- **👤 Assignee**: Assign the task to a team member.  
-- **🔥 Priority**:  
-  - 🟥 **P0**: Critical  
-  - 🟧 **P1**: High  
+- **👤 Assignee**: responsable de la tâche.
+- **🔥 Priorité**:  
+  - 🟥 **P0**: Critique
+  - 🟧 **P1**: Haute
   - 🟨 **P2**: Normal  
-- **📏 Size**:  
-  - 🟦 **XS**: Very small  
-  - 🟩 **S**: Small  
-  - 🟨 **M**: Medium  
-  - 🟧 **L**: Large  
-  - 🟥 **XL**: Very large  
-- **⏳ Estimated Hours**: The estimated time needed to complete the issue.
-- **🔁 Iteration**: The sprint or work period in which the issue will be completed.  
+- **📏 Taille**:  
+  - 🟦 **XS**: Très petite  
+  - 🟩 **S**: Petite  
+  - 🟨 **M**: Moyenne  
+  - 🟧 **L**: Grande  
+  - 🟥 **XL**: Très gra,de  
+- **⏳ Estimated Hours**: Temps prévue.
+- **🔁 Iteration**: Période de temps.
 
 ---
 
-## 🌿 Step 3: Create a Related Branch  
+## 🌿 Etape 3: Créer une branche liée
 
-Click **Create Branch** to generate a branch linked to the issue.  
-
----
-
-## 🚧 Step 4: Move the Issue to "In Progress"  
-
-Once you start working on the issue, drag it to the **In Progress** column to indicate that work is underway.  
+Cliquez sur **Create Branch** pour générer automatiquement une branche associée à l’issue. 
 
 ---
 
-## ✅ Step 5: Move the Issue to "Review"  
+## 🚧 Etape 4: Passer l’issue en "In Progress"  
 
-When the task is completed, drag it to the **In Review** column. This indicates that the task is ready for review by another team member.
-
----
-
-## 🔄 Step 6: Move the Issue to "Done"
-
-If your task is completed and has passed the review, drag it to the **Done** column. This indicates that the task is finished and can be closed.
+Faites glisser la carte vers **In Progress** dès que le travail commence.
 
 ---
 
-🎉 **Congratulations! You now have a solid understanding of how to use GitHub Projects to manage your tasks efficiently.**
+## ✅ Etape 5: Passer en "Review"  
+
+Une fois la tâche terminée, déplacez-la dans **In Review** pour validation par un ou plusieurs membre(s).
+
+---
+
+## 🔄 Etape 6: Passer en "Done"
+
+Après validation, placez la carte dans **Done** : la tâche est terminée et peut être fermée.
+
+---
+
+🎉 **Vous savez maintenant utiliser GitHub Projects pour organiser et suivre vos tâches efficacement !**
