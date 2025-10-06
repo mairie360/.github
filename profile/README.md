@@ -34,7 +34,8 @@ Il fournit une interface unifiée pour piloter tous les aspects de la gestion mu
 Nous accueillons avec plaisir toute contribution au projet Mairie360 !
 Veuillez consulter nos guides avant de participer :
 
-- [**Revue de code**](../CODE_REVIEW.md): Bonnes pratiques pour examiner et valider les modifications de code.
-- [**Gestion des versions**](../VERSION_CONTROL.md): Règles de versionnage et conventions de commits.
+- [**Revue de code**](../REVUE_DE_CODE.md): Bonnes pratiques pour examiner et valider les modifications de code.
+- [**Gestion des versions**](../GESTION_DES_VERSIONS.md): Règles de versionnage et conventions de commits.
 - [**Collaboration**](../COLLABORATION.md): Utilisation de GitHub Projects pour la gestion des tâches.
 - [**Tests et Qualité**](../TESTING.md): Recommandations pour les tests et l’assurance qualité.
+- [**Gestion des fonctionnalités**](../GESTION_DES_FONCTIONNALITES.md): Processus complet pour concevoir, développer, tester et déployer de nouvelles fonctionnalités de manière structurée et efficace.
