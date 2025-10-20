@@ -39,3 +39,4 @@ Veuillez consulter nos guides avant de participer :
 - [**Collaboration**](../COLLABORATION.md): Utilisation de GitHub Projects pour la gestion des tâches.
 - [**Tests et Qualité**](../TESTS_ET_QUALITE.md): Recommandations pour les tests et l’assurance qualité.
 - [**Gestion des fonctionnalités**](../GESTION_DES_FONCTIONNALITES.md): Processus complet pour concevoir, développer, tester et déployer de nouvelles fonctionnalités de manière structurée et efficace.
+- [**Cahier des charges**](../CAHIER_DES_CHARGES.md): Toutes les fonctionnalités recensées pour mener à bien le développement.
