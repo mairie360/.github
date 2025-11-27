@@ -3,7 +3,7 @@
 **Application de Gestion Municipale**
 
 Version: 1.0
-Date: Octobre 2024
+Date: 27 Novembre 2025
 
 ---
 
@@ -54,7 +54,6 @@ L'application comprend 8 modules principaux :
 - **Frontend**: Next
 - **Styling**: Tailwind CSS
 - **Components UI**: Lib-Components
-- **State Management**: React Hooks (useState, useEffect)
 
 ### 2.2 Responsive Design
 - **Mobile first**: Optimisation pour toutes les tailles d'écran
@@ -62,7 +61,6 @@ L'application comprend 8 modules principaux :
   - Mobile: < 640px
   - Tablet: 640px - 1024px
   - Desktop: > 1024px
-- **Adaptabilité**: Layouts flexibles avec CSS Grid et Flexbox
 
 ---
 
@@ -993,7 +991,7 @@ Centre de configuration complète de l'application et du compte utilisateur.
 #### 12.4.1 Contenu
 **2 sections**:
 **Gauche**:
-- Copyright © 2024 Mairie360
+- Copyright © 2025 Mairie360
 - Version 2.1.0
 - Séparateurs (•)
 
@@ -1031,10 +1029,10 @@ Centre de configuration complète de l'application et du compte utilisateur.
 
 ### 13.3 Compatibilité
 **Navigateurs supportés**:
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+- Chrome
+- Firefox
+- Safari
+- Edge
 
 ### 13.4 Sécurité
 - Validation des inputs
@@ -1063,7 +1061,7 @@ Centre de configuration complète de l'application et du compte utilisateur.
 
 **Équipe projet**: Direction technique Mairie360  
 **Version**: 1.0  
-**Date de dernière mise à jour**: Octobre 2024  
+**Date de dernière mise à jour**: 27 Novembre 2025
 
 ---
 
