@@ -25,10 +25,6 @@ Le module [**Core**](https://github.com/mairie360/core) constitue le cœur de Ma
 Il orchestre l’ensemble des modules et garantit leur intégration fluide et leur interopérabilité.
 Il fournit une interface unifiée pour piloter tous les aspects de la gestion municipale.
 
-## Prise en main
-
-[Mairie360](https://github.com/mairie360/mairie360) Pour tester Mairie360, rendez-vous sur le dépôt principal Mairie360 et suivez les instructions du fichier README.
-
 # Contribution
 
 Nous accueillons avec plaisir toute contribution au projet Mairie360 !
