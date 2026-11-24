@@ -1,38 +1,107 @@
-# Mairie360
+<div align="center">
 
-Bienvenue sur l’organisation GitHub de **Mairie360**
+# mairie360
 
-**Mairie360** a pour mission de moderniser et d’améliorer la productivité des mairies françaises face aux défis du numérique.
-Nous proposons une suite d’outils digitaux conçus spécialement pour les collectivités locales afin de simplifier leurs opérations, renforcer la collaboration et améliorer leur efficacité.
+**La suite numérique souveraine des petites communes françaises.**
 
-## Notre mission
+[Site web](https://mairie360.fr) · [Cahier des charges](https://github.com/mairie360/.github/blob/main/CAHIER_DES_CHARGES.md) · [Contribuer](#contribuer)
 
-Nous souhaitons combler le fossé entre la gouvernance traditionnelle et l’ère numérique.
-Nos solutions sont pensées pour rendre la gestion municipale plus simple, plus sécurisée et plus performante, en offrant des outils adaptés aux besoins spécifiques des administrations locales.
+</div>
+
+---
+
+Les petites mairies travaillent souvent avec des outils qui ne communiquent pas entre eux, vieillissants, et dont la sécurité laisse à désirer.
+**mairie360** les remplace par une seule plateforme : les agents y gèrent leurs projets, leurs agendas, leurs échanges et leurs formations, dans un environnement hébergé en France et dédié à leur commune.
+
+> **Statut :** MVP fonctionnel, en test pilote auprès de deux communes partenaires de La Réunion (Saint-Paul et Saint-André).
+
+## Nos principes
+
+- **Souveraineté :** chaque mairie dispose de sa propre instance sur un serveur dédié. Il n'y a pas de multi-tenant et aucune donnée n'est partagée entre communes.
+- **Un socle commun :** toutes les communes partagent le même produit standardisé et maintenu, sans développements sur mesure à maintenir pour chacune.
+- **Stabilité avant tout :** nous faisons évoluer les fonctionnalités dans la durée plutôt que de courir après la dernière technologie à la mode.
+- **L'IA reste facultative :** elle est intégrée progressivement, toujours signalée comme telle, et l'outil s'utilise entièrement sans elle.
+- **Un accompagnement, pas seulement un logiciel :** chaque déploiement s'accompagne de formation et de support.
 
 ## Modules
 
-- [**Calendriers**](https://github.com/mairie360/calendars): Un système complet de gestion des événements, réunions et plannings.
-- [**Fichiers**](https://github.com/mairie360/files): Un module de gestion documentaire pour stocker, partager et collaborer de manière sécurisée.  
-- [**Messages**](https://github.com/mairie360/messages): Une plateforme de communication interne pour les échanges, annonces et mises à jour.  
-- [**Emails**](https://github.com/mairie360/emails): Un outil de gestion des courriels pour envoyer, recevoir et organiser efficacement les messages électroniques.  
-- [**Projets**](https://github.com/mairie360/projects): Un espace de gestion de projets pour planifier, suivre et exécuter les actions municipales.
-- [**Formation**](https://github.com/mairie360/e-learning): Un espace de formation avec des vidéos, des pdfs et bien d'autres.
+| Module | Ce qu'il fait | Front | BFF | API |
+|---|---|---|---|---|
+| **Connexion** | Authentification des agents | [Login_Web_Service](https://github.com/mairie360/Login_Web_Service) | [BFF_user](https://github.com/mairie360/BFF_user) | [Core_API](https://github.com/mairie360/Core_API) |
+| **Tableau de bord** | Vue d'ensemble de l'activité de la mairie | [Dashboard_Web_Service](https://github.com/mairie360/Dashboard_Web_Service) | [BFF_Dashboard](https://github.com/mairie360/BFF_Dashboard) | [Core_API](https://github.com/mairie360/Core_API) |
+| **Projets** | Planifier, suivre et mener les actions municipales | [Projects_Web_Service](https://github.com/mairie360/Projects_Web_Service) | [BFF_Project](https://github.com/mairie360/BFF_Project) | [Project_API](https://github.com/mairie360/Project_API) |
+| **Calendrier** | Événements, réunions et plannings partagés | [Calendars_Web_Service](https://github.com/mairie360/Calendars_Web_Service) | [BFF_Calendar](https://github.com/mairie360/BFF_Calendar) | [Calendar_API](https://github.com/mairie360/Calendar_API) |
+| **Messagerie** | Communication interne entre agents et services | [Messages_Web_Service](https://github.com/mairie360/Messages_Web_Service) | [BFF_Message](https://github.com/mairie360/BFF_Message) | [Message_API](https://github.com/mairie360/Message_API) |
+| **E-learning** | Parcours de formation : vidéos, documents, quiz | [Elearning_Web_Service](https://github.com/mairie360/Elearning_Web_Service) | [BFF_Elearning](https://github.com/mairie360/BFF_Elearning) | [ELearning_API](https://github.com/mairie360/ELearning_API) |
+| **Paramètres** | Préférences du compte et de la commune | [Settings_Web_Service](https://github.com/mairie360/Settings_Web_Service) | [BFF_Settings](https://github.com/mairie360/BFF_Settings) | [Core_API](https://github.com/mairie360/Core_API) |
+| **Administration** | Gestion des agents, des rôles et des droits | [Administrator_Web_Service](https://github.com/mairie360/Administrator_Web_Service) | — | [Core_API](https://github.com/mairie360/Core_API) |
 
-## Orchestration
+La conformité réglementaire (RGPD notamment) est assurée par [Compliance_API](https://github.com/mairie360/Compliance_API).
 
-Le module [**Core**](https://github.com/mairie360/core) constitue le cœur de Mairie360.
-Il orchestre l’ensemble des modules et garantit leur intégration fluide et leur interopérabilité.
-Il fournit une interface unifiée pour piloter tous les aspects de la gestion municipale.
+## Architecture
 
-# Contribution
+```
+            Navigateur de l'agent
+                     │
+   ┌─────────────────▼─────────────────┐
+   │  Fronts  — Next.js (SSR, CSP)      │   un front par module
+   └─────────────────┬─────────────────┘
+   ┌─────────────────▼─────────────────┐
+   │  BFFs    — Node.js / TypeScript    │   agrégation, sans base de données
+   └─────────────────┬─────────────────┘
+   ┌─────────────────▼─────────────────┐
+   │  APIs    — Rust                    │   logique métier
+   └─────────────────┬─────────────────┘
+          PostgreSQL (Liquibase) · Redis
+```
 
-Nous accueillons avec plaisir toute contribution au projet Mairie360 !
-Veuillez consulter nos guides avant de participer :
+Chaque mairie dispose de sa propre instance Kubernetes. Le déploiement suit une approche GitOps avec Argo CD, et l'infrastructure est provisionnée avec Terraform et Ansible.
 
-- [**Revue de code**](../REVUE_DE_CODE.md): Bonnes pratiques pour examiner et valider les modifications de code.
-- [**Gestion des versions**](../GESTION_DES_VERSIONS.md): Règles de versionnage et conventions de commits.
-- [**Collaboration**](../COLLABORATION.md): Utilisation de GitHub Projects pour la gestion des tâches.
-- [**Tests et Qualité**](../TESTS_ET_QUALITE.md): Recommandations pour les tests et l’assurance qualité.
-- [**Gestion des fonctionnalités**](../GESTION_DES_FONCTIONNALITES.md): Processus complet pour concevoir, développer, tester et déployer de nouvelles fonctionnalités de manière structurée et efficace.
-- [**Cahier des charges**](../CAHIER_DES_CHARGES.md): Toutes les fonctionnalités recensées pour mener à bien le développement.
+### Bibliothèques et modèles
+
+| Dépôt | Rôle |
+|---|---|
+| [API_lib](https://github.com/mairie360/API_lib) · [API_template](https://github.com/mairie360/API_template) | Socle commun et modèle des APIs Rust |
+| [bffs_lib](https://github.com/mairie360/bffs_lib) · [Bff_Template_Repo](https://github.com/mairie360/Bff_Template_Repo) | Socle commun et modèle des BFFs |
+| [lib-components](https://github.com/mairie360/lib-components) | Composants d'interface partagés entre les fronts |
+| [Database](https://github.com/mairie360/Database) | Schéma et migrations Liquibase |
+
+### Infrastructure et outillage
+
+| Dépôt | Rôle |
+|---|---|
+| [Infra](https://github.com/mairie360/Infra) | Provisionnement des machines (Terraform) |
+| [ansible](https://github.com/mairie360/ansible) | Configuration des serveurs |
+| [Deploiment](https://github.com/mairie360/Deploiment) | Manifestes Kubernetes et Argo CD |
+| [CICD](https://github.com/mairie360/CICD) | Workflows de CI/CD réutilisables |
+| [renovate-config](https://github.com/mairie360/renovate-config) | Configuration partagée de Renovate |
+| [QA_Agent](https://github.com/mairie360/QA_Agent) | Agent de vérification qualité |
+| [mairie360.github.io](https://github.com/mairie360/mairie360.github.io) | Site vitrine [mairie360.fr](https://mairie360.fr) |
+
+## Livraison et versions
+
+- **Une seule branche (`main`) et trois environnements**, chacun sur sa propre machine : `dev` → `staging` → `prod`. Le passage en staging puis en prod se déclenche à la main.
+- **Une version globale du produit :** une release `X.Y.Z` fige la combinaison exacte des versions de tous les services. Les mairies montent de version d'un bloc, sans gérer elles-mêmes la compatibilité entre services.
+- **Ordre de déploiement :** migration de la base → APIs → BFFs → fronts, avec une sauvegarde de la base avant chaque montée de version.
+- **Images Docker** publiées sur GitHub Packages.
+
+## Qualité et sécurité
+
+La qualité repose sur la CI : chaque changement passe des tests unitaires, d'intégration, end-to-end, de performance, de sécurité et d'accessibilité avant d'être intégré.
+
+`semgrep` · `cargo audit` · `npm audit` · `OWASP ZAP` · `k6` · `Newman` · `Renovate`
+
+## Contribuer
+
+- [Gestion des versions](https://github.com/mairie360/.github/blob/main/GESTION_DES_VERSIONS.md) : versionnage et conventions de commits
+- [Tests et qualité](https://github.com/mairie360/.github/blob/main/TESTS_ET_QUALITE.md) : stratégie de tests et CI
+- [Gestion des fonctionnalités](https://github.com/mairie360/.github/blob/main/GESTION_DES_FONCTIONNALITES.md) : de la conception au déploiement
+- [Revue de code](https://github.com/mairie360/.github/blob/main/REVUE_DE_CODE.md) : bonnes pratiques de relecture
+- [Collaboration](https://github.com/mairie360/.github/blob/main/COLLABORATION.md) : organisation du travail en équipe
+- [Cahier des charges](https://github.com/mairie360/.github/blob/main/CAHIER_DES_CHARGES.md) : fonctionnalités recensées
+
+## Contact
+
+Vous êtes une mairie et le projet vous intéresse ? Rendez-vous sur **[mairie360.fr](https://mairie360.fr)**.
+
+<div align="center"><sub>Fait en France, entre la Loire-Atlantique et La Réunion.</sub></div>
